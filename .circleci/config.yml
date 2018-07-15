@@ -52,6 +52,11 @@ jobs:
                 then
                     CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
             fi
+            # If this is a pull request, the tag is for the PR
+            if [ -n "${CIRCLE_PR_NUMBER}" ]
+                then
+                    CONTAINER_NAME="${CONTAINER_NAME}:pull-request-${CIRCLE_PR_NUMBER}"
+            fi
             echo "Container name is ${CONTAINER_NAME}"
             # Pull experiment Factory builder
             echo "1. Preparing experiment building environment"
@@ -89,7 +94,7 @@ jobs:
               docker build \
                 --cache-from=${CONTAINER_NAME} \
                 --rm=false \
-                -t ${CONTAINER_NAME}:latest . \
+                -t ${CONTAINER_NAME} . \
               && e=0 && break || sleep 15
             done && [ "$e" -eq "0" ]
       - run:
@@ -101,9 +106,13 @@ jobs:
                 then
                     CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
             fi
+            if [ -n "${CIRCLE_PR_NUMBER}" ]
+                then
+                    CONTAINER_NAME="${CONTAINER_NAME}:pull-request-${CIRCLE_PR_NUMBER}"
+            fi
             echo "Saving ${CONTAINER_NAME} to container.tar.gz"
             mkdir -p /tmp/cache
-            docker save ${CONTAINER_NAME}:latest \
+            docker save ${CONTAINER_NAME} \
               | pigz -2 -p 3 > /tmp/cache/container.tar.gz
       - persist_to_workspace:
           root: /tmp
@@ -151,10 +160,14 @@ jobs:
                 then
                     CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
             fi
+            if [ -n "${CIRCLE_PR_NUMBER}" ]
+                then
+                    CONTAINER_NAME="${CONTAINER_NAME}:pull-request-${CIRCLE_PR_NUMBER}"
+            fi
             echo "The experiments installed in this container are:"
             echo "Container name set to ${CONTAINER_NAME}"
             docker run -it --rm=false \
-              ${CONTAINER_NAME}:latest ls /scif/apps
+              ${CONTAINER_NAME} ls /scif/apps
       - store_test_results:
           path: /home/circleci/out/tests
 
@@ -186,8 +199,12 @@ jobs:
                 then
                     CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
             fi
+            if [ -n "${CIRCLE_PR_NUMBER}" ]
+                then
+                    CONTAINER_NAME="${CONTAINER_NAME}:pull-request-${CIRCLE_PR_NUMBER}"
+            fi
             echo "Here we could upload metadata, for example:"
-            docker run -it ${CONTAINER_NAME}:latest inspect
+            docker run -it ${CONTAINER_NAME} inspect
       - run:
           name: Deploy to Docker Hub
           no_output_timeout: 40m
@@ -198,10 +215,14 @@ jobs:
                 then
                     CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
             fi
+            if [ -n "${CIRCLE_PR_NUMBER}" ]
+                then
+                    CONTAINER_NAME="${CONTAINER_NAME}:pull-request-${CIRCLE_PR_NUMBER}"
+            fi
             echo "Container name set to ${CONTAINER_NAME}"
             if [[ -n "$DOCKER_PASS" ]]; then
                   docker login -u $DOCKER_USER -p $DOCKER_PASS
-                  docker push ${CONTAINER_NAME}:latest
+                  docker push ${CONTAINER_NAME}
             fi
 workflows:
   version: 2
