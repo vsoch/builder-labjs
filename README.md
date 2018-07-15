@@ -2,7 +2,7 @@
 
 If you want to make your own experiment interactively, [LabJS](https://github.com/getify/LABjs) can help you!
 If you want to then build and deploy your experiments into reproducible experiment containers, you
-can use the [expfactory builder](https://expfactory.github.io/builder), demonstrated here to empower you! This repository is an example of that, with the stroop task (exported from LabJS) built and deployed to [Docker Hub](https://hub.docker.com/r/vanessa/expfactory-stroop/) via this circle CI workflow:
+can use the [expfactory builder](https://expfactory.github.io/builder), demonstrated here to empower you! This repository is an example of that, with the stroop task (exported from LabJS) built and deployed to [Docker Hub](https://hub.docker.com/r/vanessa/expfactory-stroop/) via this circle CI workflow (click green button below):
 
 [![CircleCI](https://circleci.com/gh/expfactory/builder-labjs.svg?style=svg)](https://circleci.com/gh/expfactory/builder-labjs)
 
